@@ -92,3 +92,36 @@ if !ok {
 
 fmt.Println(keycheckResult)
 ```
+
+You can also have multiple keychains:
+
+```go
+input := "success: true"
+statusCode := 204
+
+// Build keychains
+
+successKeychain := keycheck.NewKeychain().
+	SetType("SUCCESS").
+	SetKey(input, "true", keycheck.ContainsCondition).
+	SetKey(statusCode, 204, keycheck.EqualCondition) 
+
+errorKeychain := keycheck.NewKeychain().
+	SetType("ERROR").
+	SetKey(input, "false", keycheck.ContainsCondition).
+	SetKey(statusCode, 403, keycheck.EqualCondition)
+
+// Build a keycheck
+newKeycheck := keycheck.NewKeycheck().
+	AddKeychains(newKeychain, errorKeychain)
+
+// Validate keycheck
+keycheckResult, ok := newKeycheck.Validate()
+
+if !ok {
+	fmt.Println("Keycheck validation failed.")
+	return
+}
+
+fmt.Println(keycheckResult)
+```
