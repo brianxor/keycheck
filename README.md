@@ -5,6 +5,23 @@
 
 `go get github.com/brianxor/keycheck`
 
+## Supported Modes
+
+- Or
+- And
+
+## Default Types
+
+- None
+- Failure
+- Success
+- Custom
+- Retry
+- Error
+
+> [!NOTE]
+> You can define your own custom type.
+
 ## Supported Conditions
 
 - Contains
@@ -12,110 +29,29 @@
 
 ## Usage
 
-Usage is straightforward:
-
-### Contains
 ```go
-input := "success: true"
 
-// Build a keychain
-//
-// If input contains "true", then the keychain is valid.
-newKeychain := keycheck.NewKeychain().
-	SetType("SUCCESS").
-	SetKey(input, "true", keycheck.ContainsCondition)
+var (
+	source = "success: true"
+	statusCode = 200
+)
 
-// Build a keycheck
-newKeycheck := keycheck.NewKeycheck().
-	AddKeychains(newKeychain)
+orModeKeychain := keycheck.NewKeychain().
+	SetMode(keycheck.OrMode).
+	SetType(keycheck.Success).
+	SetKey(source, "true", keycheck.ContainsCondition).
+	SetKey(statusCode, 200, keycheck.EqualCondition)
 
-// Validate keycheck
-keycheckResult, ok := newKeycheck.Validate()
-
-if !ok {
-	fmt.Println("Keycheck validation failed.")
-	return
-}
-
-fmt.Println(keycheckResult)
-```
-
-### Equal
-```go
-input := "success"
-
-// Build a keychain
-//
-// If input is equal to "success", then the keychain is valid.
-newKeychain := keycheck.NewKeychain().
-	SetType("SUCCESS").
-	SetKey(input, "success", keycheck.EqualCondition)
-
-// Build a keycheck
-newKeycheck := keycheck.NewKeycheck().
-	AddKeychains(newKeychain)
-
-// Validate keycheck
-keycheckResult, ok := newKeycheck.Validate()
-
-if !ok {
-	fmt.Println("Keycheck validation failed.")
-	return
-}
-
-fmt.Println(keycheckResult)
-```
-
-You can also combine the modes:
-
-```go
-input := "success: true"
-statusCode := 204
-
-// Build a keychain
-newKeychain := keycheck.NewKeychain().
-	SetType("SUCCESS").
-	SetKey(input, "true", keycheck.ContainsCondition).
-	SetKey(statusCode, 204, keycheck.EqualCondition) 
-
-// Build a keycheck
-newKeycheck := keycheck.NewKeycheck().
-	AddKeychains(newKeychain)
-
-// Validate keycheck
-keycheckResult, ok := newKeycheck.Validate()
-
-if !ok {
-	fmt.Println("Keycheck validation failed.")
-	return
-}
-
-fmt.Println(keycheckResult)
-```
-
-You can also have multiple keychains:
-
-```go
-input := "success: true"
-statusCode := 204
-
-// Build keychains
-
-successKeychain := keycheck.NewKeychain().
-	SetType("SUCCESS").
-	SetKey(input, "true", keycheck.ContainsCondition).
-	SetKey(statusCode, 204, keycheck.EqualCondition) 
-
-errorKeychain := keycheck.NewKeychain().
-	SetType("ERROR").
-	SetKey(input, "false", keycheck.ContainsCondition).
+andModeKeychain := keycheck.NewKeychain().
+	SetMode(keycheck.AndMode).
+	SetType(keycheck.Failure).
+	SetKey(source, "false", keycheck.ContainsCondition).
 	SetKey(statusCode, 403, keycheck.EqualCondition)
+	
 
-// Build a keycheck
 newKeycheck := keycheck.NewKeycheck().
-	AddKeychains(newKeychain, errorKeychain)
+	AddKeychains(orModeKeychain, andModeKeychain)
 
-// Validate keycheck
 keycheckResult, ok := newKeycheck.Validate()
 
 if !ok {
