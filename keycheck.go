@@ -15,7 +15,15 @@ const (
 	Error   = "ERROR"
 )
 
+type KeychainMode int
+
+const (
+	OrMode KeychainMode = iota
+	AndMode
+)
+
 type Keychain struct {
+	Mode KeychainMode
 	Type KeychainType
 	Keys []*Key
 }
@@ -35,6 +43,11 @@ type Key struct {
 
 func NewKeychain() *Keychain {
 	return &Keychain{}
+}
+
+func (keychain *Keychain) SetMode(keychainMode KeychainMode) *Keychain {
+	keychain.Mode = keychainMode
+	return keychain
 }
 
 func (keychain *Keychain) SetType(keychainType KeychainType) *Keychain {
@@ -69,14 +82,37 @@ func (keycheck *Keycheck) AddKeychains(keychains ...*Keychain) *Keycheck {
 
 func (keycheck *Keycheck) Validate() (KeychainType, bool) {
 	for _, keychain := range keycheck.Keychains {
-		for _, key := range keychain.Keys {
-			if checkCondition(key) {
+		switch keychain.Mode {
+		case OrMode:
+			if validateOrMode(keychain) {
+				return keychain.Type, true
+			}
+		case AndMode:
+			if validateAndMode(keychain) {
 				return keychain.Type, true
 			}
 		}
 	}
 
 	return "", false
+}
+
+func validateOrMode(keychain *Keychain) bool {
+	for _, key := range keychain.Keys {
+		if checkCondition(key) {
+			return true
+		}
+	}
+	return false
+}
+
+func validateAndMode(keychain *Keychain) bool {
+	for _, key := range keychain.Keys {
+		if !checkCondition(key) {
+			return false
+		}
+	}
+	return true
 }
 
 func checkCondition(key *Key) bool {
