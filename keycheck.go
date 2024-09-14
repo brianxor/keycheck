@@ -4,15 +4,17 @@ import (
 	"strings"
 )
 
-type KeychainType string
+type KeychainType interface{}
 
-const (
-	None    = "NONE"
-	Failure = "FAILURE"
-	Success = "SUCCESS"
-	Custom  = "CUSTOM"
-	Retry   = "RETRY"
-	Error   = "ERROR"
+type DefaultKeychainType string
+
+var (
+	None    DefaultKeychainType = "NONE"
+	Failure DefaultKeychainType = "FAILURE"
+	Success DefaultKeychainType = "SUCCESS"
+	Custom  DefaultKeychainType = "CUSTOM"
+	Retry   DefaultKeychainType = "RETRY"
+	Error   DefaultKeychainType = "ERROR"
 )
 
 type KeychainMode int
