@@ -51,12 +51,14 @@ andModeKeychain := keycheck.NewKeychain().
 newKeycheck := keycheck.NewKeycheck().
 	AddKeychains(orModeKeychain, andModeKeychain)
 
-keycheckResult, ok := newKeycheck.Validate()
+keycheckValidation, ok := newKeycheck.Validate()
 
 if !ok {
 	fmt.Println("Keycheck validation failed.")
 	return
 }
+
+keycheckResult := keycheckValidation.(keycheck.DefaultKeychainType)
 
 fmt.Println(keycheckResult)
 ```
