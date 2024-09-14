@@ -1,5 +1,5 @@
 # Keycheck
- Keycheck is a Go library for validating data against conditions.
+Keycheck is a Go library for validating data against conditions.
 
 ## Installation
 
@@ -10,10 +10,13 @@
 - Or
 - And
 
-## Default Types
 
-> [!NOTE]
-> You can define your own custom type.
+## Supported Conditions
+
+- Contains
+- Equal
+
+## Default Types
 
 - None
 - Failure
@@ -22,15 +25,12 @@
 - Retry
 - Error
 
-## Supported Conditions
-
-- Contains
-- Equal
+> [!NOTE]
+> You can define your own custom type.
 
 ## Usage
 
 ```go
-
 var (
 	source = "success: true"
 	statusCode = 200
@@ -47,7 +47,6 @@ andModeKeychain := keycheck.NewKeychain().
 	SetType(keycheck.Failure).
 	SetKey(source, "false", keycheck.ContainsCondition).
 	SetKey(statusCode, 403, keycheck.EqualCondition)
-	
 
 newKeycheck := keycheck.NewKeycheck().
 	AddKeychains(orModeKeychain, andModeKeychain)
