@@ -4,8 +4,19 @@ import (
 	"strings"
 )
 
+type KeychainType string
+
+const (
+	None    = "NONE"
+	Failure = "FAILURE"
+	Success = "SUCCESS"
+	Custom  = "CUSTOM"
+	Retry   = "RETRY"
+	Error   = "ERROR"
+)
+
 type Keychain struct {
-	Type string
+	Type KeychainType
 	Keys []*Key
 }
 
@@ -26,7 +37,7 @@ func NewKeychain() *Keychain {
 	return &Keychain{}
 }
 
-func (keychain *Keychain) SetType(keychainType string) *Keychain {
+func (keychain *Keychain) SetType(keychainType KeychainType) *Keychain {
 	keychain.Type = keychainType
 	return keychain
 }
@@ -56,7 +67,7 @@ func (keycheck *Keycheck) AddKeychains(keychains ...*Keychain) *Keycheck {
 	return keycheck
 }
 
-func (keycheck *Keycheck) Validate() (string, bool) {
+func (keycheck *Keycheck) Validate() (KeychainType, bool) {
 	for _, keychain := range keycheck.Keychains {
 		for _, key := range keychain.Keys {
 			if checkCondition(key) {
@@ -70,13 +81,22 @@ func (keycheck *Keycheck) Validate() (string, bool) {
 
 func checkCondition(key *Key) bool {
 	switch key.Condition {
-	case EqualCondition:
-		return checkEqualCondition(key)
 	case ContainsCondition:
 		return checkContainsCondition(key)
+	case EqualCondition:
+		return checkEqualCondition(key)
 	default:
 		return false
 	}
+}
+
+func checkContainsCondition(key *Key) bool {
+	if inputStr, ok := key.Input.(string); ok {
+		if expectedStr, ok := key.Expected.(string); ok {
+			return strings.Contains(inputStr, expectedStr)
+		}
+	}
+	return false
 }
 
 func checkEqualCondition(key *Key) bool {
@@ -88,15 +108,6 @@ func checkEqualCondition(key *Key) bool {
 	case int:
 		if expected, ok := key.Expected.(int); ok {
 			return input == expected
-		}
-	}
-	return false
-}
-
-func checkContainsCondition(key *Key) bool {
-	if inputStr, ok := key.Input.(string); ok {
-		if expectedStr, ok := key.Expected.(string); ok {
-			return strings.Contains(inputStr, expectedStr)
 		}
 	}
 	return false
