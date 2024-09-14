@@ -12,15 +12,15 @@
 
 ## Default Types
 
+> [!NOTE]
+> You can define your own custom type.
+
 - None
 - Failure
 - Success
 - Custom
 - Retry
 - Error
-
-> [!NOTE]
-> You can define your own custom type.
 
 ## Supported Conditions
 
